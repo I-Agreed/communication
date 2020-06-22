@@ -1,6 +1,7 @@
 import socket
-import CommBase
-import Event
+from CommBase import CommBase
+from Event import Event
+import threading
 
 
 class CommServer(CommBase):
@@ -9,14 +10,19 @@ class CommServer(CommBase):
         self.maxClients = maxClients
         self.connections = {}
         self.recieveStack = []
+        self.recieveThread = threading.Thread(target=self.recieveLoop)
+        self.acceptThread = threading.Thread(target=self.acceptLoop)
+
 
     def start(self, port):
         self.serverPort = port
         self.socket.bind((self.IP, port))
-        self.listen(5)
+        self.socket.listen(self.maxClients)
+        self.recieveThread.start()
+        self.acceptThread.start()
 
-    def handleConnection(self, socket):
-        self.connections[socket[0]] = socket[1]
+    def handleConnection(self, new):
+        self.connections[new[1]] = new[0]
 
     def sendText(self, text, target=""):
         textBytes = bytes(text, "UTF-8")
@@ -53,5 +59,17 @@ class CommServer(CommBase):
             try:
                 if eval(text) == dict:
                     self.recieveStack.append(Event(**eval(text), type="kwarg"))
-            except:
+            except NameError:
                 self.recieveStack.append(Event(text=text, type="text"))
+
+    def acceptLoop(self):
+        while 1:
+            self.recieve()
+
+    def recieveLoop(self):
+        while 1:
+            try:
+                new = self.socket.accept()
+                self.handleConnection(new)
+            except socket.timeout:
+                pass

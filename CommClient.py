@@ -1,6 +1,7 @@
 import socket
-import CommBase
+from CommBase import CommBase
 from Event import Event
+import threading
 
 
 class CommClient(CommBase):
