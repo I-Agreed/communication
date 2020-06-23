@@ -3,7 +3,7 @@ import socket
 
 class CommBase:
     def __init__(self):
-        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.socket = socket.socket()
         self.IP = socket.gethostbyname(socket.gethostname())
 
     def getStack(self):

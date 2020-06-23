@@ -10,11 +10,13 @@ class CommClient(CommBase):
         self.serverIp = None
         self.serverPort = None
         self.recieveStack = []
+        self.recieveThread = threading.Thread(target=self.recieveLoop)
 
     def connect(self, ip, port):
         self.serverIp = ip
         self.serverPort = port
         self.socket.connect((ip, port))
+        self.recieveThread.start()
 
     def sendText(self, text):
         textBytes = bytes(text, "UTF-8")
@@ -38,3 +40,7 @@ class CommClient(CommBase):
                     self.recieveStack.append(Event(**eval(text), type="kwarg"))
             except:
                 self.recieveStack.append(Event(text=text, type="text"))
+
+    def recieveLoop(self):
+        while 1:
+            self.recieve()

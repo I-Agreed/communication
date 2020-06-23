@@ -62,11 +62,11 @@ class CommServer(CommBase):
             except NameError:
                 self.recieveStack.append(Event(text=text, type="text"))
 
-    def acceptLoop(self):
+    def recieveLoop(self):
         while 1:
             self.recieve()
 
-    def recieveLoop(self):
+    def acceptLoop(self):
         while 1:
             try:
                 new = self.socket.accept()
